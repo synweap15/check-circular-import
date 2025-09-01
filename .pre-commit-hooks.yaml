@@ -1,0 +1,9 @@
+- id: check-circular-import
+  name: Check for circular imports
+  description: Detect circular import dependencies in Python files
+  entry: check-circular-import
+  language: python
+  types: [python]
+  pass_filenames: false
+  require_serial: true
+  minimum_pre_commit_version: "2.9.0"
