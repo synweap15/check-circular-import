@@ -26,8 +26,9 @@ repos:
     rev: v1.8.0
     hooks:
       - id: mypy
-        additional_dependencies: [types-all]
-        args: [--ignore-missing-imports]
+        additional_dependencies: []
+        args: [--ignore-missing-imports, --install-types, --non-interactive]
+        files: ^check_circular_import/.*\.py$
 
   # Test our own hook
   - repo: local
