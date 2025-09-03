@@ -37,14 +37,7 @@ jobs:
     - name: Install dependencies
       run: poetry install --with dev
 
-    - name: Run Black
-      run: poetry run black --check .
-
-    - name: Run Ruff
-      run: poetry run ruff check .
-
-    - name: Run MyPy
-      run: poetry run mypy check_circular_import
+    # Linting is handled by the 'pre-commit' job; avoid duplicate checks here
 
     - name: Run tests with coverage
       run: poetry run pytest
@@ -127,5 +120,5 @@ jobs:
       run: |
         poetry install --only dev
         poetry run pip install tox tox-gh-actions
-    - name: Run tox
+    - name: Run tox (tests only)
       run: poetry run tox
