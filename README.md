@@ -1,11 +1,13 @@
 # check-circular-import
 
-[![CI](https://github.com/synweap15/check-circular-import/actions/workflows/ci.yml/badge.svg)](https://github.com/yourusername/check-circular-import/actions/workflows/ci.yml)
+[![CI](https://github.com/synweap15/check-circular-import/actions/workflows/ci.yml/badge.svg)](https://github.com/synweap15/check-circular-import/actions/workflows/ci.yml)
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/charliermarsh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
 A fast and reliable pre-commit hook for detecting circular imports in Python projects.
+
+Supported Python versions: 3.9–3.12
 
 ## Features
 
@@ -218,7 +220,7 @@ poetry run tox -e test-hook
 ```
 
 **Available tox environments:**
-- `py38`, `py39`, `py310`, `py311`, `py312` - Test specific Python versions
+- `py39`, `py310`, `py311`, `py312` - Test specific Python versions
 - `lint` - Run Black, Ruff, and MyPy
 - `format` - Auto-format code with Black and Ruff
 - `coverage` - Generate coverage reports
