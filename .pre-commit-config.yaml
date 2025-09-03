@@ -39,3 +39,9 @@ repos:
         language: system
         types: [python]
         pass_filenames: false
+      - id: poetry-lock-no-update
+        name: Ensure Poetry lock is in sync (no update)
+        entry: poetry lock --no-update
+        language: system
+        pass_filenames: false
+        files: ^pyproject\.toml$

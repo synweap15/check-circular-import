@@ -127,6 +127,5 @@ jobs:
       run: |
         poetry install --only dev
         poetry run pip install tox tox-gh-actions
-
     - name: Run tox
       run: poetry run tox
