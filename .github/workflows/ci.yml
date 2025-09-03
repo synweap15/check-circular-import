@@ -95,6 +95,12 @@ jobs:
         pip install poetry
         poetry install
 
+    - name: Cache Poetry virtualenvs
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pypoetry/virtualenvs
+        key: poetry-venv-${{ runner.os }}-testhook-${{ hashFiles('**/poetry.lock') }}
+
     - name: Cache pip
       uses: actions/cache@v3
       with:
@@ -132,6 +138,12 @@ jobs:
       run: |
         poetry install --only dev
         poetry run pip install tox tox-gh-actions
+
+    - name: Cache Poetry virtualenvs
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pypoetry/virtualenvs
+        key: poetry-venv-${{ runner.os }}-${{ matrix.python-version }}-${{ hashFiles('**/poetry.lock') }}
 
     - name: Cache tox and pip
       uses: actions/cache@v3
