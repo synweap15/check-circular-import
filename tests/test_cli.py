@@ -21,7 +21,9 @@ def test_cli_help():
 
 
 def test_cli_version():
-    """Test that --version works."""
+    """Test that --version works and matches package version."""
+    from check_circular_import import __version__
+
     result = subprocess.run(
         [sys.executable, "-m", "check_circular_import", "--version"],
         capture_output=True,
@@ -29,7 +31,7 @@ def test_cli_version():
     )
 
     assert result.returncode == 0
-    assert "0.1.0" in result.stdout
+    assert __version__ in result.stdout
 
 
 def test_cli_with_circular_imports(project_with_circular_imports: Path):
