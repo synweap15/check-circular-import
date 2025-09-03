@@ -6,9 +6,9 @@ import sys
 from pathlib import Path
 from typing import Dict, List
 
+from check_circular_import import __version__
 from check_circular_import.detector import CircularImportDetector
 from check_circular_import.utils import format_cycle_output
-from check_circular_import import __version__
 
 
 def print_report(

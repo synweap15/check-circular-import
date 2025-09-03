@@ -22,12 +22,12 @@ def recursive_func():
         "normal_module": """
 def normal_func():
     return "normal"
-"""
+""",
     }
-    
+
     create_module_files(temp_project_dir, modules)
     cycles, stats = analyze_project(temp_project_dir)
-    
+
     # Self-imports should be detected as cycles
     assert len(cycles) >= 1
     assert_cycles_contain_modules(cycles, ["self_import"])
@@ -51,12 +51,12 @@ except ImportError:
         "fallback_module": """
 def fallback():
     return "fallback"
-"""
+""",
     }
-    
+
     create_module_files(temp_project_dir, modules)
     cycles, stats = analyze_project(temp_project_dir)
-    
+
     # Should detect cycles even in try/except
     assert len(cycles) >= 1
     assert_cycles_contain_modules(cycles, ["try_a", "try_b"])
@@ -82,12 +82,12 @@ def use_a():
         "dynamic_c": """
 # This would create a cycle if detected dynamically, but shouldn't be
 import dynamic_a
-"""
+""",
     }
-    
+
     create_module_files(temp_project_dir, modules)
     cycles, stats = analyze_project(temp_project_dir)
-    
+
     # Should only detect the static cycle between dynamic_a and dynamic_b
     assert len(cycles) >= 1
     assert_cycles_contain_modules(cycles, ["dynamic_a", "dynamic_b"])
@@ -109,12 +109,12 @@ import future_a
 
 def create_type():
     return future_a.func_a()
-"""
+""",
     }
-    
+
     create_module_files(temp_project_dir, modules)
     cycles, stats = analyze_project(temp_project_dir)
-    
+
     # Should detect cycles despite __future__ imports
     assert len(cycles) >= 1
     assert_cycles_contain_modules(cycles, ["future_a", "future_b"])
@@ -131,17 +131,17 @@ import module_with_underscore
 """,
         "another/__init__": "",
         "another/module/__init__": "",
-        "another/module/with/__init__": ""
+        "another/module/with/__init__": "",
     }
-    
+
     create_module_files(temp_project_dir, modules)
     cycles, stats = analyze_project(temp_project_dir)
-    
+
     assert len(cycles) >= 1
     cycle_modules = set()
     for cycle in cycles:
         cycle_modules.update(cycle)
-    
+
     # Should handle module names correctly
     assert any("module_with_underscore" in module for module in cycle_modules)
     assert any("another.module.with.dots" in module for module in cycle_modules)
@@ -159,12 +159,12 @@ import empty_b
         "normal": """
 def func():
     return "normal"
-"""
+""",
     }
-    
+
     create_module_files(temp_project_dir, modules)
     cycles, stats = analyze_project(temp_project_dir)
-    
+
     # Empty files shouldn't create cycles
     assert_no_cycles(cycles)
     assert stats["total_modules"] == 4
@@ -174,24 +174,24 @@ def test_very_long_import_chains(temp_project_dir: Path):
     """Test handling of very long import chains."""
     # Create a chain of 20 modules
     chain = [f"chain_{i:02d}" for i in range(20)]
-    
+
     modules = {}
     for i, module in enumerate(chain):
         next_module = chain[(i + 1) % len(chain)]
         modules[module] = f"import {next_module}"
-    
+
     create_module_files(temp_project_dir, modules)
     cycles, stats = analyze_project(temp_project_dir)
-    
+
     # Should detect the long cycle
     assert len(cycles) >= 1
     assert stats["circular_dependencies_found"] >= 1
-    
+
     # All modules should be in some cycle
     cycle_modules = set()
     for cycle in cycles:
         cycle_modules.update(cycle)
-    
+
     assert len(cycle_modules) >= 20
 
 
@@ -207,12 +207,12 @@ import has_import_error
 
 def work():
     return "working"
-"""
+""",
     }
-    
+
     create_module_files(temp_project_dir, modules)
     cycles, stats = analyze_project(temp_project_dir)
-    
+
     # Should still detect cycles despite import errors
     assert len(cycles) >= 1
     assert_cycles_contain_modules(cycles, ["has_import_error", "working_module"])
@@ -233,12 +233,12 @@ import unicode_module
 
 def function():
     return unicode_module.función()
-"""
+""",
     }
-    
+
     create_module_files(temp_project_dir, modules)
     cycles, stats = analyze_project(temp_project_dir)
-    
+
     # Should handle Unicode without issues
     assert len(cycles) >= 1
     assert_cycles_contain_modules(cycles, ["unicode_module", "other_module"])
@@ -267,12 +267,12 @@ import docstring_a  # This should be detected
 
 def func_b():
     return "b"
-'''
+''',
     }
-    
+
     create_module_files(temp_project_dir, modules)
     cycles, stats = analyze_project(temp_project_dir)
-    
+
     # Should detect the actual imports, not the ones in docstrings
     assert len(cycles) >= 1
     assert_cycles_contain_modules(cycles, ["docstring_a", "docstring_b"])
@@ -294,12 +294,12 @@ import comment_a  # Real import
 def func_b():
     # import some_other_module  # Commented import
     return comment_a.func_a()
-"""
+""",
     }
-    
+
     create_module_files(temp_project_dir, modules)
     cycles, stats = analyze_project(temp_project_dir)
-    
+
     # Should detect only the real imports
     assert len(cycles) >= 1
     assert_cycles_contain_modules(cycles, ["comment_a", "comment_b"])
@@ -324,17 +324,17 @@ from multi_a import use_multi_b
 def function_one():
     return "one"
 
-def function_two(): 
+def function_two():
     return "two"
 
 def function_three():
     return use_multi_b()
-"""
+""",
     }
-    
+
     create_module_files(temp_project_dir, modules)
     cycles, stats = analyze_project(temp_project_dir)
-    
+
     # Should detect cycles with multiline imports
     assert len(cycles) >= 1
     assert_cycles_contain_modules(cycles, ["multi_a", "multi_b"])
@@ -361,12 +361,12 @@ import alias_x as x_mod
 
 def func():
     return x_mod.x_func()
-"""
+""",
     }
-    
+
     create_module_files(temp_project_dir, modules)
     cycles, stats = analyze_project(temp_project_dir)
-    
+
     # Should detect cycles despite aliases
     assert len(cycles) >= 1
     assert_cycles_contain_modules(cycles, ["alias_x", "alias_y", "alias_z"])

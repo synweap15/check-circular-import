@@ -3,7 +3,11 @@
 from pathlib import Path
 
 from check_circular_import.detector import CircularImportDetector
-from tests.test_utils import analyze_project, assert_cycles_contain_modules, assert_no_cycles
+from tests.test_utils import (
+    analyze_project,
+    assert_cycles_contain_modules,
+    assert_no_cycles,
+)
 
 
 def test_detector_finds_simple_circular_import(project_with_circular_imports: Path):
@@ -72,7 +76,7 @@ def test_detector_handles_nonexistent_directory():
 def test_detector_handles_syntax_errors(temp_project_dir: Path):
     """Test that detector handles Python files with syntax errors."""
     from tests.test_utils import create_module_files
-    
+
     modules = {
         "bad_syntax": """
 def bad_function(
@@ -81,9 +85,9 @@ def bad_function(
         "good": """
 def good_function():
     return "OK"
-"""
+""",
     }
-    
+
     create_module_files(temp_project_dir, modules)
     cycles, stats = analyze_project(temp_project_dir)
 
@@ -94,10 +98,10 @@ def good_function():
 def test_detector_handles_complex_cycle(temp_project_dir: Path):
     """Test detection of a more complex circular dependency chain."""
     from tests.test_utils import create_chain_modules
-    
+
     modules = ["mod_a", "mod_b", "mod_c", "mod_d"]
     create_chain_modules(temp_project_dir, modules)
-    
+
     cycles, stats = analyze_project(temp_project_dir)
 
     assert len(cycles) > 0

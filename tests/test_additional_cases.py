@@ -3,8 +3,6 @@
 from pathlib import Path
 from typing import Set
 
-import pytest
-
 from check_circular_import.detector import CircularImportDetector
 from check_circular_import.utils import (
     file_to_module_name,
@@ -12,9 +10,13 @@ from check_circular_import.utils import (
 )
 
 
-def test_regex_fallback_parses_imports_when_ast_fails(temp_project_dir: Path) -> None:
-    """Ensure regex fallback handles both import and from-import syntax when AST fails."""
-    # Create a file with invalid syntax to force AST failure, but with realistic import lines
+def test_regex_fallback_parses_imports_when_ast_fails(
+    temp_project_dir: Path,
+) -> None:
+    """Ensure regex fallback handles both import and from-import
+    syntax when AST fails.
+    """
+    # Create a file with invalid syntax to force AST failure, with realistic lines
     bad = temp_project_dir / "bad.py"
     bad.write_text(
         """
@@ -42,7 +44,7 @@ from pkg.mod import a, b as bee, *
 
 
 def test_fallback_read_text_failure(monkeypatch, temp_project_dir: Path) -> None:
-    """If reading text fails during fallback, extractor should return safely (empty set)."""
+    """If reading text fails during fallback, extractor returns safely (empty set)."""
     bad = temp_project_dir / "bad2.py"
     bad.write_text("not valid python")
 
@@ -89,10 +91,9 @@ def test_file_to_module_name_nonrelative_returns_path(temp_project_dir: Path) ->
 
 
 def test_normalize_cycle_single_and_rotation() -> None:
-    """Normalize handles single-item cycles and de-duplicates trailing element.""" 
+    """Normalize handles single-item cycles and de-duplicates trailing element."""
     # Single element
     assert normalize_cycle(["only"]) == ("only",)
 
     # De-duplicate last element, rotate to smallest lexicographic start
     assert normalize_cycle(["b", "c", "a", "b"]) == ("a", "b", "c")
-

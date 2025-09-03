@@ -7,10 +7,10 @@ from pathlib import Path
 from typing import Dict, List, Optional, Set, Tuple
 
 from check_circular_import.utils import (
+    DEFAULT_IGNORE_DIRS,
     file_to_module_name,
     get_python_files,
     normalize_cycle,
-    DEFAULT_IGNORE_DIRS,
 )
 
 
@@ -72,9 +72,15 @@ class CircularImportDetector:
                             for alias in node.names:
                                 if alias.name != "*":
                                     if node.module:
-                                        specific_module = f"{full_module}.{alias.name}" if full_module else alias.name
+                                        specific_module = (
+                                            f"{full_module}.{alias.name}"
+                                            if full_module
+                                            else alias.name
+                                        )
                                     else:
-                                        specific_module = ".".join(base_parts + [alias.name])
+                                        specific_module = ".".join(
+                                            base_parts + [alias.name]
+                                        )
                                     if specific_module:
                                         imports.add(specific_module)
                     elif node.module:

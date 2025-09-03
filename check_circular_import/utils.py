@@ -1,10 +1,9 @@
 """Utility functions for circular import detection."""
 
 import os
+from fnmatch import fnmatch
 from pathlib import Path
 from typing import List, Tuple
-from fnmatch import fnmatch
-
 
 # Centralized default ignore patterns for directories
 DEFAULT_IGNORE_DIRS: List[str] = [

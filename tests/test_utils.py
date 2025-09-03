@@ -9,7 +9,7 @@ from check_circular_import.detector import CircularImportDetector
 def create_module_files(base_dir: Path, modules: Dict[str, str]) -> None:
     """
     Create multiple Python module files from a dictionary.
-    
+
     Args:
         base_dir: Base directory to create files in
         modules: Dict mapping module names to their content
@@ -24,21 +24,21 @@ def create_module_files(base_dir: Path, modules: Dict[str, str]) -> None:
                 module_path.mkdir(exist_ok=True)
                 # Create __init__.py for packages
                 (module_path / "__init__.py").touch()
-            
+
             file_path = module_path / f"{parts[-1]}.py"
         else:
             file_path = base_dir / f"{module_name}.py"
-        
+
         file_path.write_text(content.strip())
 
 
 def analyze_project(project_dir: Path) -> tuple[List[List[str]], Dict]:
     """
     Analyze a project directory and return cycles and stats.
-    
+
     Args:
         project_dir: Directory to analyze
-        
+
     Returns:
         Tuple of (cycles, stats)
     """
@@ -46,10 +46,12 @@ def analyze_project(project_dir: Path) -> tuple[List[List[str]], Dict]:
     return detector.analyze()
 
 
-def assert_cycles_contain_modules(cycles: List[List[str]], expected_modules: List[str]) -> None:
+def assert_cycles_contain_modules(
+    cycles: List[List[str]], expected_modules: List[str]
+) -> None:
     """
     Assert that the detected cycles contain all expected modules.
-    
+
     Args:
         cycles: List of detected cycles
         expected_modules: List of module names that should be in cycles
@@ -57,10 +59,11 @@ def assert_cycles_contain_modules(cycles: List[List[str]], expected_modules: Lis
     all_cycle_modules = set()
     for cycle in cycles:
         all_cycle_modules.update(cycle)
-    
+
     for module in expected_modules:
-        assert any(module in cycle_module for cycle_module in all_cycle_modules), \
-            f"Expected module '{module}' not found in cycles: {all_cycle_modules}"
+        assert any(
+            module in cycle_module for cycle_module in all_cycle_modules
+        ), f"Expected module '{module}' not found in cycles: {all_cycle_modules}"
 
 
 def assert_no_cycles(cycles: List[List[str]]) -> None:
@@ -71,29 +74,33 @@ def assert_no_cycles(cycles: List[List[str]]) -> None:
 def create_chain_modules(base_dir: Path, chain: List[str]) -> None:
     """
     Create modules that import in a chain (A -> B -> C -> ... -> A).
-    
+
     Args:
         base_dir: Directory to create modules in
         chain: List of module names forming the chain
     """
     modules = {}
-    
+
     for i, module in enumerate(chain):
         next_module = chain[(i + 1) % len(chain)]
-        modules[module] = f"""
+        modules[
+            module
+        ] = f"""
 import {next_module}
 
 def func_{module}():
     return {next_module}.func_{next_module}()
 """
-    
+
     create_module_files(base_dir, modules)
 
 
-def create_package_structure(base_dir: Path, package_name: str, submodules: Dict[str, str]) -> None:
+def create_package_structure(
+    base_dir: Path, package_name: str, submodules: Dict[str, str]
+) -> None:
     """
     Create a package with submodules.
-    
+
     Args:
         base_dir: Base directory
         package_name: Name of the package
@@ -102,14 +109,16 @@ def create_package_structure(base_dir: Path, package_name: str, submodules: Dict
     pkg_dir = base_dir / package_name
     pkg_dir.mkdir()
     (pkg_dir / "__init__.py").write_text("")
-    
+
     modules = {}
     for submodule, imports in submodules.items():
-        modules[f"{package_name}/{submodule}"] = f"""
+        modules[
+            f"{package_name}/{submodule}"
+        ] = f"""
 {imports}
 
 def func_{submodule}():
     return "result from {submodule}"
 """
-    
+
     create_module_files(base_dir, modules)
