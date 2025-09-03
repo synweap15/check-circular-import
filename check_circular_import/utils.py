@@ -3,6 +3,22 @@
 import os
 from pathlib import Path
 from typing import List, Tuple
+from fnmatch import fnmatch
+
+
+# Centralized default ignore patterns for directories
+DEFAULT_IGNORE_DIRS: List[str] = [
+    "venv",
+    "env",
+    "__pycache__",
+    ".git",
+    "node_modules",
+    ".venv",
+    ".tox",
+    "build",
+    "dist",
+    "*.egg-info",
+]
 
 
 def get_python_files(root_directory: Path, ignore_dirs: List[str]) -> List[Path]:
@@ -20,7 +36,10 @@ def get_python_files(root_directory: Path, ignore_dirs: List[str]) -> List[Path]
 
     for root, dirs, files in os.walk(root_directory):
         # Remove ignored directories from dirs to prevent walking into them
-        dirs[:] = [d for d in dirs if d not in ignore_dirs]
+        # Support wildcard patterns like "*.egg-info"
+        dirs[:] = [
+            d for d in dirs if not any(fnmatch(d, pattern) for pattern in ignore_dirs)
+        ]
 
         for file in files:
             if file.endswith(".py"):
@@ -51,7 +70,8 @@ def file_to_module_name(file_path: Path, root_directory: Path) -> str:
         if module_parts[-1] == "__init__":
             module_parts = module_parts[:-1]
 
-        return ".".join(module_parts) if module_parts else "root"
+        # If this is root-level __init__.py, ignore by returning empty name
+        return ".".join(module_parts) if module_parts else ""
     except ValueError:
         return str(file_path)
 

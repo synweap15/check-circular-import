@@ -10,6 +10,7 @@ from check_circular_import.utils import (
     file_to_module_name,
     get_python_files,
     normalize_cycle,
+    DEFAULT_IGNORE_DIRS,
 )
 
 
@@ -25,24 +26,11 @@ class CircularImportDetector:
             ignore_dirs: List of directory names to ignore
         """
         self.root_directory = Path(root_directory).resolve()
-        default_ignore_dirs = [
-            "venv",
-            "env",
-            "__pycache__",
-            ".git",
-            "node_modules",
-            ".venv",
-            ".tox",
-            "build",
-            "dist",
-            "*.egg-info",
-        ]
-
         if ignore_dirs is None:
-            self.ignore_dirs = default_ignore_dirs
+            self.ignore_dirs = list(DEFAULT_IGNORE_DIRS)
         else:
             # Combine default and custom ignore directories
-            self.ignore_dirs = list(set(default_ignore_dirs + ignore_dirs))
+            self.ignore_dirs = list({*DEFAULT_IGNORE_DIRS, *ignore_dirs})
         self.dependency_graph: Dict[str, Set[str]] = defaultdict(set)
         self.module_to_file: Dict[str, Path] = {}
 
@@ -77,15 +65,18 @@ class CircularImportDetector:
                                 full_module = ".".join(base_parts + [node.module])
                             else:
                                 full_module = ".".join(base_parts)
-                            imports.add(full_module)
+                            if full_module:
+                                imports.add(full_module)
 
                             # Also add specific imports from relative imports
                             for alias in node.names:
                                 if alias.name != "*":
-                                    specific_module = ".".join(
-                                        base_parts + [alias.name]
-                                    )
-                                    imports.add(specific_module)
+                                    if node.module:
+                                        specific_module = f"{full_module}.{alias.name}" if full_module else alias.name
+                                    else:
+                                        specific_module = ".".join(base_parts + [alias.name])
+                                    if specific_module:
+                                        imports.add(specific_module)
                     elif node.module:
                         # Absolute import
                         imports.add(node.module)
@@ -97,7 +88,34 @@ class CircularImportDetector:
                                 imports.add(potential_module)
 
         except (SyntaxError, FileNotFoundError) as e:
+            # Best-effort fallback: simple regex-based extraction when AST fails
             print(f"Warning: Could not parse {file_path}: {e}", file=sys.stderr)
+            try:
+                text = Path(file_path).read_text(encoding="utf-8")
+            except Exception:
+                return imports
+
+            import re
+
+            # Handle lines like: import a.b.c [as x]
+            for m in re.finditer(r"^\s*import\s+([A-Za-z0-9_\.]+)", text, re.MULTILINE):
+                imports.add(m.group(1))
+
+            # Handle lines like: from a.b import c, d
+            for m in re.finditer(
+                r"^\s*from\s+([A-Za-z0-9_\.]+)\s+import\s+([^\n#]+)",
+                text,
+                re.MULTILINE,
+            ):
+                base = m.group(1).strip()
+                imports.add(base)
+                names = [part.strip() for part in m.group(2).split(",")]
+                for name in names:
+                    if not name or name == "*":
+                        continue
+                    # Strip aliasing: "x as y"
+                    name = name.split(" as ", 1)[0].strip()
+                    imports.add(f"{base}.{name}")
 
         return imports
 
@@ -108,11 +126,14 @@ class CircularImportDetector:
         # First pass: map all modules to their files
         for file_path in python_files:
             module_name = file_to_module_name(file_path, self.root_directory)
-            self.module_to_file[module_name] = file_path
+            if module_name:
+                self.module_to_file[module_name] = file_path
 
         # Second pass: build dependency graph
         for file_path in python_files:
             module_name = file_to_module_name(file_path, self.root_directory)
+            if not module_name:
+                continue
             imports = self.extract_imports(file_path)
 
             for imported_module in imports:
@@ -182,6 +203,10 @@ class CircularImportDetector:
             A tuple of (cycles, stats) where cycles is a list of circular dependencies
             and stats is a dictionary with analysis statistics.
         """
+        # Reset state in case of reuse
+        self.dependency_graph.clear()
+        self.module_to_file.clear()
+
         self.build_dependency_graph()
         cycles = self.find_cycles()
 

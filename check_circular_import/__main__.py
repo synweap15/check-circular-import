@@ -8,6 +8,7 @@ from typing import Dict, List
 
 from check_circular_import.detector import CircularImportDetector
 from check_circular_import.utils import format_cycle_output
+from check_circular_import import __version__
 
 
 def print_report(
@@ -92,36 +93,20 @@ Examples:
     parser.add_argument(
         "--version",
         action="version",
-        version="%(prog)s 0.1.0",
+        version=f"%(prog)s {__version__}",
         help="Show version and exit",
     )
 
     args = parser.parse_args()
 
-    # Prepare ignore directories
-    ignore_dirs = [
-        "venv",
-        "env",
-        "__pycache__",
-        ".git",
-        "node_modules",
-        ".venv",
-        ".tox",
-        "build",
-        "dist",
-    ]
-
-    if args.ignore:
-        ignore_dirs.extend(args.ignore)
-
     # Create detector and run analysis
     try:
+        detector = CircularImportDetector(args.directory, args.ignore)
+
         if args.verbose and not args.json:
             print(f"Analyzing Python files in: {Path(args.directory).resolve()}")
-            print(f"Ignoring directories: {', '.join(ignore_dirs)}")
+            print(f"Ignoring directories: {', '.join(detector.ignore_dirs)}")
             print()
-
-        detector = CircularImportDetector(args.directory, ignore_dirs)
         cycles, stats = detector.analyze()
 
         print_report(cycles, stats, detector.root_directory, args.json)
