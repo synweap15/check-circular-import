@@ -4,7 +4,7 @@ import ast
 import sys
 from collections import defaultdict
 from pathlib import Path
-from typing import Dict, List, Optional, Set, Tuple
+from typing import Optional
 
 from check_circular_import.utils import (
     DEFAULT_IGNORE_DIRS,
@@ -17,7 +17,7 @@ from check_circular_import.utils import (
 class CircularImportDetector:
     """Detector for circular import dependencies in Python projects."""
 
-    def __init__(self, root_directory: str, ignore_dirs: Optional[List[str]] = None):
+    def __init__(self, root_directory: str, ignore_dirs: Optional[list[str]] = None):
         """
         Initialize the detector with a root directory to scan.
 
@@ -31,10 +31,10 @@ class CircularImportDetector:
         else:
             # Combine default and custom ignore directories
             self.ignore_dirs = list({*DEFAULT_IGNORE_DIRS, *ignore_dirs})
-        self.dependency_graph: Dict[str, Set[str]] = defaultdict(set)
-        self.module_to_file: Dict[str, Path] = {}
+        self.dependency_graph: dict[str, set[str]] = defaultdict(set)
+        self.module_to_file: dict[str, Path] = {}
 
-    def extract_imports(self, file_path: Path) -> Set[str]:
+    def extract_imports(self, file_path: Path) -> set[str]:
         """Extract all imports from a Python file."""
         imports = set()
 
@@ -159,11 +159,11 @@ class CircularImportDetector:
 
         return False
 
-    def find_cycles(self) -> List[List[str]]:
+    def find_cycles(self) -> list[list[str]]:
         """Find all cycles in the dependency graph using DFS."""
         cycles = []
         visited = set()
-        rec_stack: List[str] = []
+        rec_stack: list[str] = []
 
         def dfs(module: str) -> None:
             if module in rec_stack:
@@ -201,7 +201,7 @@ class CircularImportDetector:
 
         return unique_cycles
 
-    def analyze(self) -> Tuple[List[List[str]], Dict]:
+    def analyze(self) -> tuple[list[list[str]], dict]:
         """
         Perform the full analysis.
 

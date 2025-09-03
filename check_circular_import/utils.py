@@ -3,10 +3,9 @@
 import os
 from fnmatch import fnmatch
 from pathlib import Path
-from typing import List, Tuple
 
 # Centralized default ignore patterns for directories
-DEFAULT_IGNORE_DIRS: List[str] = [
+DEFAULT_IGNORE_DIRS: list[str] = [
     "venv",
     "env",
     "__pycache__",
@@ -20,7 +19,7 @@ DEFAULT_IGNORE_DIRS: List[str] = [
 ]
 
 
-def get_python_files(root_directory: Path, ignore_dirs: List[str]) -> List[Path]:
+def get_python_files(root_directory: Path, ignore_dirs: list[str]) -> list[Path]:
     """
     Find all Python files in the project directory.
 
@@ -75,7 +74,7 @@ def file_to_module_name(file_path: Path, root_directory: Path) -> str:
         return str(file_path)
 
 
-def normalize_cycle(cycle: List[str]) -> Tuple[str, ...]:
+def normalize_cycle(cycle: list[str]) -> tuple[str, ...]:
     """
     Normalize a cycle to start from the smallest element.
 
@@ -98,7 +97,7 @@ def normalize_cycle(cycle: List[str]) -> Tuple[str, ...]:
     return tuple(cycle)
 
 
-def format_cycle_output(cycle: List[str]) -> str:
+def format_cycle_output(cycle: list[str]) -> str:
     """
     Format a cycle for display.
 

@@ -4,7 +4,6 @@ import argparse
 import json
 import sys
 from pathlib import Path
-from typing import Dict, List
 
 from check_circular_import import __version__
 from check_circular_import.detector import CircularImportDetector
@@ -12,7 +11,7 @@ from check_circular_import.utils import format_cycle_output
 
 
 def print_report(
-    cycles: List[List[str]], stats: Dict, root_directory: Path, json_output: bool
+    cycles: list[list[str]], stats: dict, root_directory: Path, json_output: bool
 ) -> None:
     """Print a formatted report of the analysis."""
     if json_output:
