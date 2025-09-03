@@ -66,6 +66,12 @@ jobs:
         virtualenvs-create: true
         virtualenvs-in-project: true
 
+    - name: Cache dependencies
+      uses: actions/cache@v3
+      with:
+        path: .venv
+        key: venv-${{ runner.os }}-precommit-${{ hashFiles('**/poetry.lock') }}
+
     - name: Install dependencies
       run: |
         poetry install --with dev
@@ -88,6 +94,12 @@ jobs:
       run: |
         pip install poetry
         poetry install
+
+    - name: Cache pip
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: pip-${{ runner.os }}-testhook-${{ hashFiles('**/poetry.lock') }}
 
     - name: Test as pre-commit hook
       run: |
@@ -120,5 +132,13 @@ jobs:
       run: |
         poetry install --only dev
         poetry run pip install tox tox-gh-actions
+
+    - name: Cache tox and pip
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.cache/pip
+          .tox
+        key: tox-${{ runner.os }}-${{ matrix.python-version }}-${{ hashFiles('**/poetry.lock') }}
     - name: Run tox (tests only)
       run: poetry run tox
