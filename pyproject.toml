@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "check-circular-import"
-version = "0.1.0"
+version = "0.2.0"
 description = "Pre-commit hook for detecting circular imports in Python projects"
 authors = ["pawel <pawel@werda.pl>"]
 readme = "README.md"
