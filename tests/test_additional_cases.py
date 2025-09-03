@@ -1,13 +1,9 @@
 """Additional complex tests to raise coverage and exercise edge branches."""
 
 from pathlib import Path
-from typing import Set
 
 from check_circular_import.detector import CircularImportDetector
-from check_circular_import.utils import (
-    file_to_module_name,
-    normalize_cycle,
-)
+from check_circular_import.utils import file_to_module_name, normalize_cycle
 
 
 def test_regex_fallback_parses_imports_when_ast_fails(
@@ -33,7 +29,7 @@ from pkg.mod import a, b as bee, *
 
     det = CircularImportDetector(str(temp_project_dir))
     # Call extract_imports directly to verify fallback parsing
-    imports: Set[str] = det.extract_imports(bad)
+    imports: set[str] = det.extract_imports(bad)
 
     assert "pkg.mod" in imports
     # Should include specific names from from-import (excluding '*')

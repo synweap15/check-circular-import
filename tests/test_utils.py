@@ -1,12 +1,11 @@
 """Test utilities and helper functions."""
 
 from pathlib import Path
-from typing import Dict, List
 
 from check_circular_import.detector import CircularImportDetector
 
 
-def create_module_files(base_dir: Path, modules: Dict[str, str]) -> None:
+def create_module_files(base_dir: Path, modules: dict[str, str]) -> None:
     """
     Create multiple Python module files from a dictionary.
 
@@ -32,7 +31,7 @@ def create_module_files(base_dir: Path, modules: Dict[str, str]) -> None:
         file_path.write_text(content.strip())
 
 
-def analyze_project(project_dir: Path) -> tuple[List[List[str]], Dict]:
+def analyze_project(project_dir: Path) -> tuple[list[list[str]], dict]:
     """
     Analyze a project directory and return cycles and stats.
 
@@ -47,7 +46,7 @@ def analyze_project(project_dir: Path) -> tuple[List[List[str]], Dict]:
 
 
 def assert_cycles_contain_modules(
-    cycles: List[List[str]], expected_modules: List[str]
+    cycles: list[list[str]], expected_modules: list[str]
 ) -> None:
     """
     Assert that the detected cycles contain all expected modules.
@@ -66,12 +65,12 @@ def assert_cycles_contain_modules(
         ), f"Expected module '{module}' not found in cycles: {all_cycle_modules}"
 
 
-def assert_no_cycles(cycles: List[List[str]]) -> None:
+def assert_no_cycles(cycles: list[list[str]]) -> None:
     """Assert that no cycles were detected."""
     assert len(cycles) == 0, f"Expected no cycles, but found: {cycles}"
 
 
-def create_chain_modules(base_dir: Path, chain: List[str]) -> None:
+def create_chain_modules(base_dir: Path, chain: list[str]) -> None:
     """
     Create modules that import in a chain (A -> B -> C -> ... -> A).
 
@@ -96,7 +95,7 @@ def func_{module}():
 
 
 def create_package_structure(
-    base_dir: Path, package_name: str, submodules: Dict[str, str]
+    base_dir: Path, package_name: str, submodules: dict[str, str]
 ) -> None:
     """
     Create a package with submodules.
