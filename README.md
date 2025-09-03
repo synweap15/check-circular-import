@@ -28,7 +28,7 @@ Add this to your `.pre-commit-config.yaml`:
 ```yaml
 repos:
   - repo: https://github.com/synweap15/check-circular-import
-    rev: v0.2.0
+    rev: v0.2.1
     hooks:
       - id: check-circular-import
 ```
